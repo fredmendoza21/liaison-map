@@ -22,7 +22,7 @@
         }).addTo(map);
 
         // Fetch and Load JSON Data
-        fetch('csvjson(1).json')
+        fetch('data.json')
         .then(response => response.json())
         .then(data => {
             data.forEach(location => {
