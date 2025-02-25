@@ -4,38 +4,65 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liaison Map</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
 </head>
 <body>
-    <h1>Liaison Directory</h1>
-    <table border="1">
+
+    <h1>Liaison Map Directory</h1>
+    <table id="liaisonTable">
         <thead>
             <tr>
                 <th>Hospital Name</th>
                 <th>City</th>
                 <th>State</th>
                 <th>Liaison Name</th>
-                <th>Email</th>
+                <th>Liaison Email</th>
             </tr>
         </thead>
-        <tbody id="data-table"></tbody>
+        <tbody>
+            <!-- Data will be inserted here dynamically -->
+        </tbody>
     </table>
 
     <script>
-        fetch('data.json')
+        // Fetch JSON data
+        fetch("csvjson.json")
         .then(response => response.json())
         .then(data => {
-            let table = document.getElementById("data-table");
-            data.forEach(row => {
-                let tr = document.createElement("tr");
-                tr.innerHTML = `<td>${row.hospital}</td>
-                                <td>${row.city}</td>
-                                <td>${row.state}</td>
-                                <td>${row.liaison}</td>
-                                <td><a href="mailto:${row.email}">${row.email}</a></td>`;
-                table.appendChild(tr);
+            let tableBody = document.querySelector("#liaisonTable tbody");
+            data.forEach(item => {
+                let row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${item["Hospital Name"]}</td>
+                    <td>${item["City"]}</td>
+                    <td>${item["State"]}</td>
+                    <td>${item["Liaison Name"]}</td>
+                    <td><a href="mailto:${item["Liaison Email"]}">${item["Liaison Email"]}</a></td>
+                `;
+                tableBody.appendChild(row);
             });
         })
-        .catch(error => console.error('Error loading data:', error));
+        .catch(error => console.error("Error loading JSON:", error));
     </script>
+
 </body>
 </html>
