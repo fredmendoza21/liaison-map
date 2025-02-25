@@ -4,38 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liaison Map</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <style>
-        #map { height: 600px; width: 100%; }
-    </style>
 </head>
 <body>
-    <h2>Interactive Liaison Map</h2>
-    <p>Click on a state to see the designated liaison and contact information.</p>
-    <div id="map"></div>
+    <h1>Liaison Directory</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Hospital Name</th>
+                <th>City</th>
+                <th>State</th>
+                <th>Liaison Name</th>
+                <th>Email</th>
+            </tr>
+        </thead>
+        <tbody id="data-table"></tbody>
+    </table>
 
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
-        // Initialize the map
-        var map = L.map('map').setView([37.8, -96], 4); // Centered on the USA
-
-        // Add OpenStreetMap tiles
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
-
-        // Sample locations (State, City, Liaison Name, Email)
-        var liaisons = [
-            { lat: 33.4484, lng: -112.0740, state: "Arizona", city: "Phoenix", name: "John Doe", email: "john.doe@example.com" },
-            { lat: 40.7128, lng: -74.0060, state: "New York", city: "New York", name: "Jane Smith", email: "jane.smith@example.com" }
-        ];
-
-        // Add markers for each liaison
-        liaisons.forEach(function(liaison) {
-            L.marker([liaison.lat, liaison.lng]).addTo(map)
-                .bindPopup(`<b>${liaison.state} - ${liaison.city}</b><br>${liaison.name}<br><a href="mailto:${liaison.email}">${liaison.email}</a>`);
-        });
-
+        fetch('data.json')
+        .then(response => response.json())
+        .then(data => {
+            let table = document.getElementById("data-table");
+            data.forEach(row => {
+                let tr = document.createElement("tr");
+                tr.innerHTML = `<td>${row.hospital}</td>
+                                <td>${row.city}</td>
+                                <td>${row.state}</td>
+                                <td>${row.liaison}</td>
+                                <td><a href="mailto:${row.email}">${row.email}</a></td>`;
+                table.appendChild(tr);
+            });
+        })
+        .catch(error => console.error('Error loading data:', error));
     </script>
 </body>
 </html>
