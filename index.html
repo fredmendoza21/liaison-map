@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hospital Liaison Map</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -14,7 +16,8 @@
         #map {
             height: 600px;
             width: 90%;
-            margin: auto;
+            margin: 20px auto;
+            border: 1px solid #ccc;
         }
     </style>
 </head>
@@ -22,44 +25,66 @@
 
     <h1>Hospital Liaison Map</h1>
     <p>Click on a marker to view hospital and liaison details.</p>
-    
+
+    <!-- Map Container -->
     <div id="map"></div>
 
-    <script>
-        // Initialize the map
-        var map = L.map('map').setView([39.8283, -98.5795], 4); // Centered on the US
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 
-        // Add OpenStreetMap tiles
+    <script>
+        // Initialize map
+        let map = L.map('map').setView([39.8283, -98.5795], 4); // Center of USA
+
+        // Add tile layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-let hospitalData = []; // Declare globally
+        // Global variable to store hospital data
+        let hospitalData = [];
 
-fetch('data.json')
-    .then(response => response.json())
-    .then(data => {
-        hospitalData = data; // Store data globally
-        console.log("Loaded JSON data:", hospitalData); // Debugging
+        // Fetch data.json and populate map
+        fetch('data.json')
+            .then(response => response.json())
+            .then(data => {
+                hospitalData = data; // Store data globally
+                console.log("Loaded JSON data:", hospitalData); // Debugging
 
-        // Add markers after data loads
-        hospitalData.forEach(hospital => {
-            if (hospital.Latitude && hospital.Longitude) {
-                L.marker([hospital.Latitude, hospital.Longitude])
-                  .addTo(map)
-                  .bindPopup(`<b>${hospital["Hospital Name"]}</b><br>${hospital.City}, ${hospital.State}`);
-            } else {
-                console.warn("Missing coordinates for:", hospital["Hospital Name"]);
-            }
-        });
+                // Ensure data is loaded before proceeding
+                if (!hospitalData || hospitalData.length === 0) {
+                    console.warn("No data loaded from data.json");
+                    return;
+                }
 
-        // Adjust map view to fit all markers
-        let bounds = new L.LatLngBounds();
-        hospitalData.forEach(hospital => {
-            if (hospital.Latitude && hospital.Longitude) {
-                bounds.extend([hospital.Latitude, hospital.Longitude]);
-            }
-        });
-        map.fitBounds(bounds);
-    })
-    .catch(error => console.error("Error fetching JSON:", error));
+                // Loop through hospitals and add markers
+                hospitalData.forEach(hospital => {
+                    if (hospital.Latitude && hospital.Longitude) {
+                        let marker = L.marker([hospital.Latitude, hospital.Longitude])
+                            .addTo(map)
+                            .bindPopup(`<b>${hospital["Hospital Name"]}</b><br>
+                                        ${hospital.City}, ${hospital.State}<br>
+                                        <b>Liaison:</b> ${hospital["Liaison Name"]}<br>
+                                        <b>Email:</b> <a href="mailto:${hospital["Liaison Email"]}">${hospital["Liaison Email"]}</a>`);
+                    } else {
+                        console.warn("Missing coordinates for:", hospital["Hospital Name"]);
+                    }
+                });
+
+                // Fit map bounds to markers
+                let bounds = new L.LatLngBounds();
+                hospitalData.forEach(hospital => {
+                    if (hospital.Latitude && hospital.Longitude) {
+                        bounds.extend([hospital.Latitude, hospital.Longitude]);
+                    }
+                });
+                if (bounds.isValid()) {
+                    map.fitBounds(bounds);
+                }
+            })
+            .catch(error => console.error("Error fetching JSON:", error));
+
+    </script>
+
+</body>
+</html>
