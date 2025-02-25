@@ -3,56 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liaison Hospital Map</title>
-    
-    <!-- Leaflet CSS for Interactive Map -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-
+    <title>Liaison Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; text-align: center; }
-        #map { height: 600px; width: 90%; margin: 20px auto; border-radius: 8px; }
-        h1 { margin-top: 20px; }
+        #map { height: 90vh; }
     </style>
 </head>
 <body>
-
-    <h1>Hospital Liaison Map</h1>
-    <p>Click on a marker to view hospital and liaison details.</p>
-    
-    <!-- Map Container -->
+    <h1>Liaison Map</h1>
     <div id="map"></div>
-
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-    <!-- Fetch and Display JSON Data -->
+    
     <script>
-        // Initialize Map Centered on North America
-        var map = L.map('map').setView([39.8283, -98.5795], 4); // Centered on USA
-
-        // Load Tile Layer from OpenStreetMap
+        // Initialize Map
+        var map = L.map('map').setView([39.8283, -98.5795], 4); // Centered on the US
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        // Fetch JSON Data
-        fetch('data.json')
-            .then(response => response.json())
-            .then(data => {
-                data.forEach(item => {
-                    // Create Marker for Each Hospital
-                    L.marker([item.Latitude, item.Longitude])
-                        .addTo(map)
-                        .bindPopup(
-                            `<b>${item.HospitalName}</b><br>
-                            ${item.City}, ${item.State}<br>
-                            <strong>Liaison:</strong> ${item.LiaisonName} <br>
-                            <a href="mailto:${item.LiaisonEmail}">${item.LiaisonEmail}</a>`
-                        );
-                });
-            })
-            .catch(error => console.error('Error loading JSON:', error));
+        // Fetch and Load JSON Data
+        fetch('csvjson(1).json')
+        .then(response => response.json())
+        .then(data => {
+            data.forEach(location => {
+                if (location.latitude && location.longitude) {
+                    L.marker([parseFloat(location.latitude), parseFloat(location.longitude)])
+                    .addTo(map)
+                    .bindPopup(`
+                        <b>${location["hospital name"]}</b><br>
+                        ${location.city}, ${location.state}<br>
+                        <b>Liaison:</b> ${location["liaison name"]}<br>
+                        <b>Email:</b> <a href="mailto:${location["liaison email"]}">${location["liaison email"]}</a>
+                    `);
+                }
+            });
+        })
+        .catch(error => console.error('Error loading JSON:', error));
     </script>
-
 </body>
 </html>
